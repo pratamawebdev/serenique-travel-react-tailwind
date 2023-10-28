@@ -14,6 +14,7 @@ import Card from "../../Fragments/Global/Card";
 import Form from "../../Fragments/Admin/Form";
 import Loader from "../../Fragments/Global/Loader";
 import ConfirmMessage from "../../Fragments/Global/ConfirmMessage";
+import { useNavigate } from "react-router-dom";
 
 const ActivityLayouts = () => {
   const [title, setTitle] = useState("");
@@ -31,6 +32,7 @@ const ActivityLayouts = () => {
   const [city, setCity] = useState("");
   const [location_maps, setLocationMaps] = useState();
   const itemsPerPage = 5;
+  const navigate = useNavigate();
   const { data, loading, error } = useFetch("api/v1/activities");
   const {
     data: dataCategory,
@@ -141,19 +143,19 @@ const ActivityLayouts = () => {
   };
   const handleUpdate = async (e, id) => {
     e.preventDefault();
-    if (!id) {
-      return;
-    }
+    // if (!id) {
+    //   return;
+    // }
     try {
       const updatedActivityData = {
         title: formData.title,
         categoryId: formData.categoryId,
         description: formData.description,
         imageUrls: formData?.imageUrls,
-        price: formData.parseInt(price),
+        price: formData.price,
         price_discount: formData.price_discount,
-        rating: parseInt(rating),
-        total_reviews: formData.parseInt(total_reviews),
+        rating: formData.rating,
+        total_reviews: formData.total_reviews,
         facilities: formData.facilities,
         address: formData.address,
         province: formData.province,
@@ -222,7 +224,7 @@ const ActivityLayouts = () => {
         return true;
       }
     }
-    return false; // Tidak ada yang cocok dengan pencarian
+    return false;
   });
 
   const handleCategorySelect = (e) => {
@@ -233,6 +235,10 @@ const ActivityLayouts = () => {
     } else {
       setSelectedCategoryId(selectedValue);
     }
+  };
+
+  const handleMaps = (id) => {
+    navigate(`/map/${id}`);
   };
 
   return (
@@ -309,6 +315,12 @@ const ActivityLayouts = () => {
                       >
                         Delete
                       </button>
+                      <button
+                        className="py-[4px] px-2 bg-red-500 rounded"
+                        onClick={() => handleMaps(dataId)}
+                      >
+                        Map
+                      </button>
                     </td>
                   ),
                 },
@@ -356,6 +368,7 @@ const ActivityLayouts = () => {
           onChangeReviews={(event) =>
             setTotalReviews(parseInt(event.target.value))
           }
+          onChangeCategoryId={(event) => setCategoryId(event.target.value)}
           showFormActivity={true}
           placeholderTitle="Input activity title ..."
           placeholderPrice="Input activity price ..."
@@ -370,21 +383,8 @@ const ActivityLayouts = () => {
           placeholderCity="Input activity city ..."
           placeholderRating="Input activity rating ..."
           placeholderReviews="Input activity reviews ..."
-        >
-          <div className="w-full mb-4">
-            <select
-              id="category_id"
-              className="w-full p-2 mt-1 border rounded"
-              onChange={(event) => setCategoryId(event.target.value)}
-            >
-              {dataCategory?.data?.map((v, i) => (
-                <option key={i} value={v.id}>
-                  {v.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </Form>
+          placeholderCategoryId="Input activity category id ..."
+        />
       </Modal>
       <Modal
         classname="w-[80%] md:w-[50%]"
@@ -437,7 +437,11 @@ const ActivityLayouts = () => {
             onChangeLocationMaps={(e) =>
               setFormData({ ...formData, location_maps: e.target.value })
             }
+            onChangeCategoryId={(e) =>
+              setFormData({ ...formData, categoryId: e.target.value })
+            }
             showFormActivity={true}
+            placeholderCategoryId="Input activity category id ..."
             placeholderTitle="Input activity title ..."
             placeholderPrice="Input activity price ..."
             placeholderDesc="Input activity description ..."
@@ -464,22 +468,8 @@ const ActivityLayouts = () => {
             valueFacilities={formData?.facilities}
             valueProvince={formData?.province}
             valueCity={formData?.city}
-          >
-            <div className="w-full mb-4">
-              <select
-                id="category_id"
-                className="w-full p-2 mt-1 border rounded"
-                onChange={(event) => setCategoryId(event.target.value)}
-                value={formData?.categoryId}
-              >
-                {dataCategory?.data?.map((v, i) => (
-                  <option key={i} value={v.id}>
-                    {v.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </Form>
+            valueCategoryId={formData?.categoryId}
+          />
         )}
       </Modal>
       <Modal
@@ -516,7 +506,6 @@ const ActivityLayouts = () => {
           city={dataDetail?.data?.city}
           createdAt={dataDetail?.data?.createdAt}
           updatedAt={dataDetail?.data?.updatedAt}
-          // locationMaps={dataDetail?.data?.location_maps}
         />
       </Modal>
     </AdminLayouts>

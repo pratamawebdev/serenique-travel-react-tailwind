@@ -13,6 +13,7 @@ import ProfilePage from "./pages/profile";
 import HomePage from "./pages/home";
 import ActivityPage from "./pages/activity";
 import ProtectedProfile from "./routes/ProtectedProfile";
+import MapPage from "./pages/map";
 
 const routes = [
   { path: "/login", element: <LoginPage /> },
@@ -20,6 +21,14 @@ const routes = [
   {
     path: "/",
     element: <HomePage />,
+  },
+  {
+    path: "/map/:id",
+    element: (
+      <ProtectedRoute>
+        <MapPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/dashboard",

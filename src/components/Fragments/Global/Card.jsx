@@ -2,21 +2,13 @@ const Card = (props) => {
   const {
     src,
     alt,
-    name,
-    showName,
     createdAt,
     updatedAt,
     description,
-    showDescription,
     terms_condition,
-    showTerm,
     title,
-    showTitle,
     promo_code,
-    showPromoCode,
     promo_discount_price,
-    showPromoDiscountPrice,
-    showHr,
     showDetailsPromo,
     showDetailsActivity,
     minimum_claim_price,
@@ -33,8 +25,9 @@ const Card = (props) => {
     address,
     province,
     city,
-    locationMaps,
+    location_maps,
   } = props;
+
   return (
     <div className="w-full text-sm rounded-md shadow-md ">
       {showDetailsBanner && (
@@ -188,67 +181,10 @@ const Card = (props) => {
                 <span className="font-semibold">Update At: </span>
                 {updatedAt}
               </p>
-              {locationMaps}
             </div>
           </div>
         </>
       )}
-      {/* <div className="relative">
-        {showTitle && (
-          <span className="absolute px-2 py-1 font-semibold bg-white top-2 left-2 rounded-xl">
-            {title}
-          </span>
-        )}
-        <img
-          src={src}
-          alt={alt}
-          className="object-cover w-full h-60 rounded-t-xl"
-        />
-        <div className="flex flex-col w-full gap-2 px-4 py-3">
-          {showName && (
-            <p className="block text-lg font-bold text-black capitalize truncate">
-              {name}
-            </p>
-          )}
-          {showDescription && <p className="text-justify">{description}</p>}
-          {showHr && <hr className="border-[1.5px] border-green-500" />}
-          {showTerm && (
-            <div>
-              <span className="font-semibold">Terms Condition:</span>{" "}
-              {terms_condition}
-            </div>
-          )}
-          <div className="flex justify-between">
-            {showDetailsPromo && (
-              <div className="flex flex-col gap-2">
-                <p>
-                  <span className="font-semibold">Created At:</span> {createdAt}
-                </p>
-                <p>
-                  <span className="font-semibold">Updated At:</span> {updatedAt}
-                </p>
-                <p>
-                  <span className="font-semibold">Minimum Price:</span>{" "}
-                  {minimum_claim_price}
-                </p>
-              </div>
-            )}
-            <div className="flex flex-col items-start justify-center gap-2">
-              {showPromoCode && (
-                <span className="px-2 py-1 bg-green-500 rounded-xl">
-                  {promo_code}
-                </span>
-              )}
-              {showPromoDiscountPrice && (
-                <p>
-                  <span>Discount Price: </span>
-                  {promo_discount_price}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div> */}
     </div>
   );
 };

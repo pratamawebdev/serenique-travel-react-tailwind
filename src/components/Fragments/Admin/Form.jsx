@@ -6,6 +6,7 @@ const Form = (props) => {
     showFormActivity,
     showFormCategory,
     showFormPromo,
+    placeholderCategoryId,
     placeholderName,
     placeholderTitle,
     placeholderDesc,
@@ -42,6 +43,7 @@ const Form = (props) => {
     onChangeTermsCondition,
     onChangePromoCode,
     onChangePromoDiscountPrice,
+    onChangeCategoryId,
     valueImageUrl2,
     valuePrice,
     valuePriceDiscount,
@@ -60,7 +62,7 @@ const Form = (props) => {
     valuePromoCode,
     valuePromoDiscountPrice,
     valueMinimumClaimPrice,
-    children,
+    valueCategoryId,
   } = props;
 
   return (
@@ -164,7 +166,16 @@ const Form = (props) => {
       {showFormActivity && (
         <>
           <div className="flex items-center justify-center gap-3">
-            {children}
+            <div className="mb-4">
+              <input
+                type="text"
+                id="category_id"
+                className="w-full p-2 mt-1 border rounded"
+                placeholder={placeholderCategoryId}
+                value={valueCategoryId}
+                onChange={onChangeCategoryId}
+              />
+            </div>
             <div className="w-full mb-4">
               <input
                 type="text"
