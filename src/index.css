@@ -1,3 +1,6 @@
+@import url("/src/styles/_globals.css");
+@import url("/src/styles/_reusables.css");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
