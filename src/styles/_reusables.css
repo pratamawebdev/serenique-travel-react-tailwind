@@ -1,0 +1,22 @@
+@layer components {
+  .section {
+    @apply pt-24 pb-16;
+  }
+  .section-subtitle {
+    @apply pb-4  text-[15px] font-semibold uppercase tracking-[3px] text-blue-600;
+  }
+  .section-title {
+    @apply pb-4  text-[32px] font-semibold leading-[150%] text-gray-900 dark:text-white sm:text-[42px];
+  }
+  .section-text {
+    @apply text-[15px] font-medium leading-[180%] text-gray-600 dark:text-white;
+  }
+
+  .button {
+    @apply flex h-[52px] items-center justify-center gap-x-4 rounded-lg bg-primaryColor py-4 px-10 font-semibold text-white;
+  }
+
+  .container {
+    @apply mx-auto w-[calc(100%-3rem)] max-w-[1200px];
+  }
+}
