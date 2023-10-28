@@ -46,7 +46,7 @@ const ActivityLayouts = () => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState(
-    data.data?.length > 0 ? data.data[0].category.id : ""
+    data?.data?.length > 0 ? data.data[0].category.id : ""
   );
   const [formData, setFormData] = useState({
     categoryId: "",
@@ -85,20 +85,16 @@ const ActivityLayouts = () => {
     getDataById: getDataByCategoryId,
   } = useGetById("api/v1/activities-by-category");
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
   if (error) {
     return <p>Error: {error.message}</p>;
   }
-  if (!data || data.data.length === 0) {
+  if (!data || data?.data?.length === 0) {
     return <p>No data available.</p>;
   }
 
-  const totalPages = Math.ceil(data.data.length / itemsPerPage);
+  const totalPages = Math.ceil(data?.data?.length / itemsPerPage);
 
-  const paginatedData = data.data.slice(
+  const paginatedData = data?.data?.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -138,7 +134,6 @@ const ActivityLayouts = () => {
   const handleConfirmDelete = async () => {
     try {
       await handleDeleteActivity(deleteItemId);
-      // After successful deletion, close the confirmation modal
       setShowDeleteConfirmation(false);
     } catch (error) {
       console.error("Error during delete:", error);
@@ -214,17 +209,17 @@ const ActivityLayouts = () => {
   };
 
   const filteredDataByCategory = selectedCategoryId
-    ? paginatedData.filter((item) => item.categoryId === selectedCategoryId)
+    ? paginatedData?.filter((item) => item.categoryId === selectedCategoryId)
     : paginatedData;
 
-  const filteredDataWithSearch = filteredDataByCategory.filter((item) => {
-    const itemData = Object.values(item); // Mengambil semua nilai dalam item
+  const filteredDataWithSearch = filteredDataByCategory?.filter((item) => {
+    const itemData = Object?.values(item);
     for (const data of itemData) {
       if (
         typeof data === "string" &&
-        data.toLowerCase().includes(searchTerm.toLowerCase())
+        data?.toLowerCase()?.includes(searchTerm?.toLowerCase())
       ) {
-        return true; // Jika ada yang cocok dengan pencarian, tampilkan item ini
+        return true;
       }
     }
     return false; // Tidak ada yang cocok dengan pencarian
@@ -243,93 +238,99 @@ const ActivityLayouts = () => {
   return (
     <AdminLayouts>
       <p className="mb-6 text-3xl font-bold text-gray-700">Activities</p>
-      <TableLayouts
-        title="Manage Activities"
-        searchTerm={searchTerm}
-        onSearch={handleSearch}
-        showFilter={true}
-        filter={
-          <select id="selectData" onChange={handleCategorySelect}>
-            <option value="category" disabled>
-              Select Category
-            </option>
-            <option value="all">All Activities</option>
-            {[...new Set(data.data.map((v) => v.category.id))].map(
-              (categoryId, i) => (
-                <option key={i} value={categoryId}>
-                  {
-                    data.data.find((v) => v.category.id === categoryId).category
-                      .name
-                  }
-                </option>
-              )
-            )}
-          </select>
-        }
-        button={
-          <Button
-            classname="py-[4px] px-2 bg-green-500"
-            onClick={() => setShowModalAdd(true)}
-          >
-            Add Activity
-          </Button>
-        }
-      >
-        {filteredDataWithSearch?.length > 0 ? (
-          <Table
-            column={[
-              { title: "Title", column: "title" },
-              { title: "Category", column: "category" },
-              { title: "Created At", column: "createdAt" },
-              { title: "Updated At", column: "updatedAt" },
-              {
-                title: "Actions",
-                column: "actions",
-                useTemplate: true,
-                Template: ({ keyIndex, dataId }) => (
-                  <td
-                    key={keyIndex}
-                    className="flex gap-2 px-4 py-2 border-b border-b-gray-50"
-                  >
-                    <button
-                      className="py-[4px] px-2 bg-blue-400 rounded"
-                      onClick={() => handleViewDetail(dataId)}
+      {loading ? (
+        <div className="absolute top-1/2 left-1/2">
+          <Loader />
+        </div>
+      ) : (
+        <TableLayouts
+          title="Manage Activities"
+          searchTerm={searchTerm}
+          onSearch={handleSearch}
+          showFilter={true}
+          filter={
+            <select id="selectData" onChange={handleCategorySelect}>
+              <option value="category" disabled>
+                Select Category
+              </option>
+              <option value="all">All Activities</option>
+              {[...new Set(data.data.map((v) => v.category.id))].map(
+                (categoryId, i) => (
+                  <option key={i} value={categoryId}>
+                    {
+                      data.data.find((v) => v.category.id === categoryId)
+                        .category.name
+                    }
+                  </option>
+                )
+              )}
+            </select>
+          }
+          button={
+            <Button
+              classname="py-[4px] px-2 bg-green-500"
+              onClick={() => setShowModalAdd(true)}
+            >
+              Add Activity
+            </Button>
+          }
+        >
+          {filteredDataWithSearch?.length > 0 ? (
+            <Table
+              column={[
+                { title: "Title", column: "title" },
+                { title: "Category", column: "category" },
+                { title: "Created At", column: "createdAt" },
+                { title: "Updated At", column: "updatedAt" },
+                {
+                  title: "Actions",
+                  column: "actions",
+                  useTemplate: true,
+                  Template: ({ keyIndex, dataId }) => (
+                    <td
+                      key={keyIndex}
+                      className="flex gap-2 px-4 py-2 border-b border-b-gray-50"
                     >
-                      Detail
-                    </button>
-                    <button
-                      className="py-[4px] px-2 bg-orange-400 rounded"
-                      onClick={() => handleViewData(dataId)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="py-[4px] px-2 bg-red-500 rounded"
-                      onClick={() => handleDelete(dataId)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                ),
-              },
-            ]}
-            data={(filteredDataWithSearch || []).map((v) => ({
-              ...v,
-              createdAt: formatDate(v.createdAt),
-              updatedAt: formatDate(v.updatedAt),
-              category: v.category.name,
-            }))}
-          />
-        ) : (
-          <p className="text-center">No data available</p>
-        )}
+                      <button
+                        className="py-[4px] px-2 bg-blue-400 rounded"
+                        onClick={() => handleViewDetail(dataId)}
+                      >
+                        Detail
+                      </button>
+                      <button
+                        className="py-[4px] px-2 bg-orange-400 rounded"
+                        onClick={() => handleViewData(dataId)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="py-[4px] px-2 bg-red-500 rounded"
+                        onClick={() => handleDelete(dataId)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  ),
+                },
+              ]}
+              data={(filteredDataWithSearch || []).map((v) => ({
+                ...v,
+                createdAt: formatDate(v.createdAt),
+                updatedAt: formatDate(v.updatedAt),
+                category: v.category.name,
+              }))}
+            />
+          ) : (
+            <p className="text-center">No data available</p>
+          )}
 
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-      </TableLayouts>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </TableLayouts>
+      )}
       <Modal
         classname="w-[80%] md:w-[50%]"
         isVisible={showModalAdd}
