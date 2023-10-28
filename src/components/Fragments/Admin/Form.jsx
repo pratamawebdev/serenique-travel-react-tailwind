@@ -24,7 +24,6 @@ const Form = (props) => {
     placeholderTermsCondition,
     placeholderPromoCode,
     placeholderPromoDiscountPrice,
-    onChangeCategoryId,
     onChangeImgUrl2,
     onChangePrice,
     onChangePriceDiscount,
@@ -61,8 +60,6 @@ const Form = (props) => {
     valuePromoCode,
     valuePromoDiscountPrice,
     valueMinimumClaimPrice,
-    valueCategoryId,
-    categoryName,
     children,
   } = props;
 
