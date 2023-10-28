@@ -1,16 +1,15 @@
 import { Link } from "react-router-dom";
 import useColorMode from "../../../hooks/useColorMode";
-import { loginImage } from "../../../utils/data";
-
+import { authImage } from "../../../utils/data";
 const AuthLayouts = (props) => {
   const { children, type } = props;
   const [colorMode, setColorMode] = useColorMode();
 
   return (
-    <div className="flex flex-wrap w-full dark:bg-gray-900">
-      <div className="flex flex-col w-full md:w-1/2">
-        <div className="flex justify-center pt-12 md:justify-start md:pl-12 md:-mb-24">
-          <div className="absolute top-3 md:right-1/2">
+    <div className="flex flex-wrap w-full h-screen dark:bg-gray-900">
+      <div className="flex flex-col w-full lg:w-1/2">
+        <div className="flex justify-center pt-12 md:justify-start md:pl-12 ">
+          <div className="absolute top-3 md:right-1/2 ">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="224"
@@ -30,7 +29,7 @@ const AuthLayouts = (props) => {
           <div className="flex items-center gap-4">
             <a
               href="#"
-              className="text-4xl text-black logo-login dark:text-white"
+              className="text-4xl text-black logo__login dark:text-white"
             >
               Serenique
             </a>
@@ -99,7 +98,7 @@ const AuthLayouts = (props) => {
             </p>
           </div>
         </div>
-        <div className="absolute bottom-0">
+        <div className="bottom-0 hidden sm:absolute sm:inline ">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="194"
@@ -115,11 +114,11 @@ const AuthLayouts = (props) => {
             />
           </svg>
         </div>
-        <div className="absolute bottom-0 right-0 md:right-1/2">
+        <div className="bottom-0 right-0 hidden sm:absolute sm:inline lg:right-1/2 ">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="194"
-            height="136"
+            width="188"
+            height="130"
             viewBox="0 0 194 136"
             fill="none"
           >
@@ -145,10 +144,11 @@ const AuthLayouts = (props) => {
         </div>
       </div>
 
-      <div className="w-1/2 shadow-2xl">
+      <div className="shadow-2xl lg:w-1/2">
         <img
-          className="hidden object-cover w-full h-screen md:block"
-          src={loginImage}
+          className="hidden object-cover w-full h-screen lg:block"
+          src={authImage}
+          alt="Plane"
           loading="lazy"
         />
       </div>
