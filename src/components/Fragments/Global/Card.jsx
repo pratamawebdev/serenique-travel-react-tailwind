@@ -10,22 +10,9 @@ const Card = (props) => {
     promo_code,
     promo_discount_price,
     showDetailsPromo,
-    showDetailsActivity,
     minimum_claim_price,
     showDetailsBanner,
     bannerName,
-    src1,
-    alt1,
-    categoryName,
-    price,
-    priceDiscount,
-    rating,
-    totalReviews,
-    facilities,
-    address,
-    province,
-    city,
-    location_maps,
   } = props;
 
   return (
@@ -85,13 +72,16 @@ const Card = (props) => {
                     {updatedAt}
                   </p>
                   <p>
-                    <span className="font-semibold">Minimum Claim:</span>{" "}
-                    {minimum_claim_price}
+                    <span className="font-semibold">Minimum Claim:</span> ${" "}
+                    {minimum_claim_price.toLocaleString("id-ID", {
+                      styles: "currency",
+                      currency: "USD",
+                    })}
                   </p>
                 </div>
 
                 <div className="flex items-center justify-center px-2 py-1 bg-green-500 rounded-xl">
-                  <span> {promo_code}</span>
+                  <span className="uppercase "> {promo_code}</span>
                   <div className="items-center inline-block">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -108,79 +98,16 @@ const Card = (props) => {
                       />
                     </svg>
                   </div>
-                  <span>{promo_discount_price} </span>
+                  <span>
+                    {" "}
+                    ${" "}
+                    {promo_discount_price.toLocaleString("id-ID", {
+                      styles: "currency",
+                      currency: "USD",
+                    })}{" "}
+                  </span>
                 </div>
               </div>
-            </div>
-          </div>
-        </>
-      )}
-      {showDetailsActivity && (
-        <>
-          <div className="flex gap-2">
-            <div className="flex flex-col w-[50%]">
-              <div className="relative">
-                <span className="absolute px-2 py-1 font-semibold bg-white top-1 left-1 ">
-                  {title}
-                </span>
-                <span className="absolute px-2 py-1 font-semibold bg-white top-1 right-1 ">
-                  {categoryName}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <img
-                  src={src}
-                  alt={alt}
-                  className="object-cover w-full h-44 md:h-60"
-                />
-                <img
-                  src={src1}
-                  alt={alt1}
-                  className="object-cover w-full h-44 md:h-60 "
-                />
-              </div>
-            </div>
-            <div className="flex flex-col w-[50%]">
-              <p>
-                <span className="font-semibold">Price: </span>
-                {price}
-              </p>
-              <p>
-                <span className="font-semibold">Price Discount: </span>
-                {priceDiscount}
-              </p>
-              <p>
-                <span className="font-semibold">Rating: </span>
-                {rating}
-              </p>
-              <p>
-                <span className="font-semibold">Total Reviews: </span>
-                {totalReviews}
-              </p>
-              <p>
-                <span className="font-semibold">Facilities: </span>
-                {facilities}
-              </p>
-              <p>
-                <span className="font-semibold">Address: </span>
-                {address}
-              </p>
-              <p>
-                <span className="font-semibold">Province: </span>
-                {province}
-              </p>
-              <p>
-                <span className="font-semibold">City: </span>
-                {city}
-              </p>
-              <p>
-                <span className="font-semibold">Created At: </span>
-                {createdAt}
-              </p>
-              <p>
-                <span className="font-semibold">Update At: </span>
-                {updatedAt}
-              </p>
             </div>
           </div>
         </>
