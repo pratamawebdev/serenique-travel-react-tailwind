@@ -6,10 +6,10 @@ const CategoryLayouts = () => {
       <div className="container grid gap-12 ">
         <div className="max-w-sm mx-auto text-center sm:max-w-md md:max-w-lg">
           <p className="destinations__subtitle section-subtitle">
-            Best Destinations
+            Our Destination Categories
           </p>
           <h1 className="destinations__title section-title">
-            Explore the best places with us
+            Explore Your Dream Destination
           </h1>
         </div>
 

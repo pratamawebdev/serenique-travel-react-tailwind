@@ -5,11 +5,9 @@ const PromoLayouts = () => {
     <section className="transition-all destinations section duration-400 dark:bg-gray-900">
       <div className="container grid gap-12 ">
         <div className="text-center ">
-          <p className="destinations__subtitle section-subtitle">
-            Best Destinations
-          </p>
+          <p className="destinations__subtitle section-subtitle">Best Promos</p>
           <h1 className="destinations__title section-title">
-            Explore the best places with us
+            Discover Our Exclusive Destination Offers
           </h1>
         </div>
 

@@ -7,10 +7,10 @@ const ActivityLayouts = () => {
       <div className="container grid gap-12 destinations__container">
         <div className="text-center destinations__data">
           <p className="destinations__subtitle section-subtitle">
-            Best Destinations
+            Best Activities
           </p>
           <h1 className="destinations__title section-title">
-            Explore the best places with us
+            Explore Interesting Activities in Our Destinations
           </h1>
         </div>
 
