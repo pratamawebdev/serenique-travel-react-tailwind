@@ -153,8 +153,17 @@ const FormRegister = () => {
         phoneNumber,
       };
       const createdItem = await handleRegister(registerData);
+      setAlert({
+        show: true,
+        message: createdItem.message,
+        headerMessage: "Success!",
+        style: "text-green-700 bg-green-200 border-green-400 w-96",
+      });
+      setTimeout(() => {
+        setAlert({ show: false, message: "" });
+        navigate("/login");
+      }, 3000);
       console.log("Register successful:", createdItem);
-      navigate("/login");
     } catch (error) {
       setAlert({
         show: true,
@@ -162,6 +171,9 @@ const FormRegister = () => {
         headerMessage: "Failed!",
         style: "text-red-700 bg-red-100 border-red-400 w-96",
       });
+      setTimeout(() => {
+        setAlert({ show: false, message: "" });
+      }, 3000);
       console.error("Error:", error);
     }
   };

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import useCreate from "../../../hooks/usePost"; // Ganti dengan path yang benar
 import useLocalStorage from "../../../hooks/useLocalStorage";
+import Alert from "../Global/Alert";
 
 const FormLogin = () => {
   const [email, setEmail] = useState("");
@@ -10,8 +11,13 @@ const FormLogin = () => {
   const [isFormValid, setIsFormValid] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [alert, setAlert] = useState({ show: false, message: "" });
 
   const { createItem: handleLogin } = useCreate("api/v1/login");
+
+  const handleAlertClose = () => {
+    setAlert({ show: false, message: "" });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,8 +28,26 @@ const FormLogin = () => {
       console.log("Login successful:", createdItem);
       setToken(createdItem.token || createdItem.data);
       setRole(createdItem.data.role);
-      window.location.href = "/";
+      setAlert({
+        show: true,
+        message: createdItem.message,
+        headerMessage: "Success!",
+        style: "text-green-700 bg-green-200 border-green-400 w-96",
+      });
+      setTimeout(() => {
+        setAlert({ show: false, message: "" });
+        window.location.href = "/";
+      }, 3000);
     } catch (error) {
+      setAlert({
+        show: true,
+        message: error?.response?.data?.message,
+        headerMessage: "Failed!",
+        style: "text-red-700 bg-red-100 border-red-400 w-96",
+      });
+      setTimeout(() => {
+        setAlert({ show: false, message: "" });
+      }, 3000);
       console.error("Error during login:", error);
     }
   };
@@ -46,6 +70,14 @@ const FormLogin = () => {
 
   return (
     <form className="flex flex-col pt-3 md:pt-8" onSubmit={handleSubmit}>
+      {alert?.show && (
+        <Alert
+          headerMessage={alert.headerMessage}
+          message={alert.message}
+          classname={`fixed right-10 ${alert.style} top-20`}
+          onClose={handleAlertClose}
+        />
+      )}
       <div className="flex flex-col pt-4">
         <label htmlFor="email" className="text-lg dark:text-white">
           Email
