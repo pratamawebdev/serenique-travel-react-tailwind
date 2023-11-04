@@ -13,7 +13,11 @@ import ProfilePage from "./pages/profile";
 import HomePage from "./pages/home";
 import ActivityPage from "./pages/activity";
 import ProtectedProfile from "./routes/ProtectedProfile";
-import MapPage from "./pages/map";
+import DetailActivityPage from "./pages/detailActivity";
+import EditActivityPage from "./pages/editActivity";
+import EditPromoPage from "./pages/editPromo";
+import AddActivityPage from "./pages/addActivity";
+import AddPromoPage from "./pages/addPromo";
 
 const routes = [
   { path: "/login", element: <LoginPage /> },
@@ -23,26 +27,10 @@ const routes = [
     element: <HomePage />,
   },
   {
-    path: "/map/:id",
-    element: (
-      <ProtectedRoute>
-        <MapPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
     path: "/dashboard",
     element: (
       <ProtectedRoute>
         <DashboardPage />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/user",
-    element: (
-      <ProtectedRoute>
-        <UserPage />
       </ProtectedRoute>
     ),
   },
@@ -59,6 +47,22 @@ const routes = [
     element: (
       <ProtectedRoute>
         <PromoPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/addPromo",
+    element: (
+      <ProtectedRoute>
+        <AddPromoPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/editPromo/:id",
+    element: (
+      <ProtectedRoute>
+        <EditPromoPage />
       </ProtectedRoute>
     ),
   },
@@ -83,6 +87,30 @@ const routes = [
     element: (
       <ProtectedRoute>
         <ActivityPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/detailActivity/:id",
+    element: (
+      <ProtectedRoute>
+        <DetailActivityPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/editActivity/:id",
+    element: (
+      <ProtectedRoute>
+        <EditActivityPage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/addActivity",
+    element: (
+      <ProtectedRoute>
+        <AddActivityPage />
       </ProtectedRoute>
     ),
   },

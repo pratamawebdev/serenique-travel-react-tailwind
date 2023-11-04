@@ -1,10 +1,12 @@
 import useFetch from "../../../hooks/useFetch";
+import { urlStaticActivityImage } from "../../../utils/data";
+import Loader from "../Global/Loader";
 
 const ActivityGallery = () => {
   const { data, loading, error } = useFetch("api/v1/activities");
   console.log(data);
   if (loading) {
-    return <p>Loading...</p>;
+    return <Loader classname="w-8 h-8 " />;
   }
 
   if (error) {
@@ -20,7 +22,7 @@ const ActivityGallery = () => {
         <img
           key={i}
           className="object-cover object-center w-full h-full col-span-2 row-span-2 md:col-span-3 "
-          src={v.imageUrls}
+          src={v.imageUrls || urlStaticActivityImage}
           alt={`Activity ${v.name}`}
         />
       ))}
@@ -28,7 +30,7 @@ const ActivityGallery = () => {
         <img
           key={i}
           className="object-cover w-full h-full"
-          src={v.imageUrls}
+          src={v.imageUrls || urlStaticActivityImage}
           alt={`Activity ${v.name}`}
         />
       ))}

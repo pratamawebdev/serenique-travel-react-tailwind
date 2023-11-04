@@ -16,7 +16,7 @@ const Form = (props) => {
 
   return (
     <form onSubmit={(e) => onSubmit(e, dataId)} key={key}>
-      <form>
+      <>
         <div className="mb-4">
           <input
             type="text"
