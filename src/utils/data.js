@@ -7,6 +7,9 @@ export const urlStaticImage =
 export const urlStaticAboutImage =
   "https://i.pinimg.com/564x/3b/c4/b7/3bc4b71ca096a5278fa8836f9db9cb45.jpg";
 
+export const urlStaticActivityImage =
+  "https://i.pinimg.com/736x/3b/d9/d2/3bd9d294db90dd48788333713e05dea9.jpg";
+
 export const dataStatic = [
   {
     name: "Static",
