@@ -5,69 +5,137 @@ import axios from "axios";
 import useLocalStorage from "../../../hooks/useLocalStorage";
 import Loader from "../../Fragments/Global/Loader";
 import useCreate from "../../../hooks/usePost";
+import Alert from "../../Fragments/Global/Alert";
 
 const ProfileLayouts = () => {
-  const { data, loading, error } = useFetch("api/v1/user");
+  const { data, loading, error, reFetch } = useFetch("api/v1/user");
   const { createItem } = useCreate("api/v1/update-profile");
   const [token, setToken] = useLocalStorage("authToken", "");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [profilePictureName, setProfilePictureName] = useState("");
   const [profilePictureFile, setProfilePictureFile] = useState(null);
+  const [alert, setAlert] = useState({ show: false, message: "" });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phoneNumber,
+    profilePictureUrl: "",
+  });
+
+  const handleAlertClose = () => {
+    setAlert({ show: false, message: "" });
+  };
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
 
     try {
-      if (profilePictureFile?.size > 500 * 1024) {
-        return alert("Gambar yang diunggah lebih dari 500kb");
-      }
-      const data = new FormData();
-      data.append("image", profilePictureFile);
-      const updatePhoto = await axios.post(
-        "https://travel-journal-api-bootcamp.do.dibimbing.id/api/v1/upload-image",
-        data,
-        {
-          headers: {
-            apiKey: "24405e01-fbc1-45a5-9f5a-be13afcd757c",
-            Authorization: `Bearer ${token}`,
-          },
+      let urlFoto = "";
+      if (profilePictureFile) {
+        const acceptImage = ["image/"];
+        if (
+          !acceptImage.some((item) => profilePictureFile.type.includes(item))
+        ) {
+          return setAlert({
+            show: true,
+            message: "Files that are allowed are only of type Image",
+            headerMessage: "Failed!",
+            style: "text-red-700 bg-red-100 border-red-400 w-96",
+          });
         }
-      );
+        setTimeout(() => {
+          setAlert({ show: false, message: "" });
+        }, 3000);
+        if (profilePictureFile?.size > 500 * 1024) {
+          return setAlert({
+            show: true,
+            message: "File size exceeds 500 kb",
+            headerMessage: "Failed!",
+            style: "text-red-700 bg-red-100 border-red-400 w-96",
+          });
+        }
+        setTimeout(() => {
+          setAlert({ show: false, message: "" });
+        }, 3000);
+        let data = new FormData();
+        data.append("image", profilePictureFile);
+        await axios
+          .post(
+            "https://travel-journal-api-bootcamp.do.dibimbing.id/api/v1/upload-image",
+            data,
+            {
+              headers: {
+                apiKey: "24405e01-fbc1-45a5-9f5a-be13afcd757c",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+          .then((response) => {
+            if (response.data.status === "OK") {
+              urlFoto = response.data.url;
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
       const updatedData = {
-        name,
-        email,
-        phoneNumber,
-        profilePictureUrl:
-          updatePhoto.data.status === "OK" ? updatePhoto.data.url : "",
+        name: formData?.name,
+        email: formData?.email,
+        phoneNumber: formData?.phoneNumber,
+        profilePictureUrl: urlFoto,
       };
       const updatedItem = await createItem(updatedData);
+      reFetch();
+      setAlert({
+        show: true,
+        message: updatedItem?.message,
+        headerMessage: "Success!",
+        style: "text-green-700 bg-green-200 border-green-400 w-96",
+      });
+      setTimeout(() => {
+        setAlert({ show: false, message: "" });
+      }, 3000);
       console.log("Update successful:", updatedItem);
     } catch (error) {
+      setAlert({
+        show: false,
+        message: error?.message,
+        headerMessage: "Failed!",
+        style: "text-red-700 bg-red-100 border-red-400 w-96",
+      });
+      setTimeout(() => {
+        setAlert({ show: false, message: "" });
+      }, 3000);
       console.error("Error update:", error);
     }
   };
-
-  if (loading) {
-    return <p>Loading...</p>;
-  }
 
   if (error) {
     return <p>Error: {error.message}</p>;
   }
 
-  if (!data || data.data.length === 0) {
+  if (!data || data?.data?.length === 0) {
     return <p>No data available.</p>;
   }
 
   return (
     <AdminLayouts>
+      {alert?.show && (
+        <Alert
+          headerMessage={alert.headerMessage}
+          message={alert.message}
+          classname={`fixed right-10 ${alert.style} top-20`}
+          onClose={handleAlertClose}
+        />
+      )}
       <p className="mb-16 text-3xl font-bold text-gray-700 dark:text-white">
         Profile
       </p>
       {loading ? (
-        <Loader />
+        <div className="absolute top-1/2 left-[43%] md:left-1/2">
+          <Loader classname="w-12 h-12" />
+        </div>
       ) : (
         <div className="grid w-full grid-cols-1 gap-5 pb-8 lg:grid-cols-6">
           {data && (
@@ -75,7 +143,7 @@ const ProfileLayouts = () => {
               <img
                 src={data.data.profilePictureUrl}
                 alt=""
-                className="w-32 h-32 mx-auto rounded-full dark:bg-gray-500 aspect-square"
+                className="object-cover w-32 h-32 mx-auto border border-gray-400 rounded-full dark:bg-gray-500 aspect-square"
               />
               <div className="space-y-4 text-center divide-y divide-gray-700">
                 <div className="my-2 space-y-1">
@@ -103,8 +171,9 @@ const ProfileLayouts = () => {
                   type="text"
                   id="name"
                   placeholder="your name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   className="w-full h-8 px-3 py-2 mt-1 leading-tight text-gray-700 border rounded shadow appearance-none sm:w-full focus:outline-none focus:shadow-outline"
                 />
               </div>
@@ -113,8 +182,9 @@ const ProfileLayouts = () => {
                   type="email"
                   id="email"
                   placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   className="w-full h-8 px-3 py-2 mt-1 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
                 />
               </div>
@@ -123,8 +193,9 @@ const ProfileLayouts = () => {
                   type="tel"
                   id="phone_number"
                   placeholder="Phone Number"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phoneNumber: e.target.value })
+                  }
                   className="w-full h-8 px-3 py-2 mt-1 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
                 />
               </div>

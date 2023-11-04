@@ -101,7 +101,9 @@ const DashboardLayouts = () => {
         Dashboard
       </p>
       {load ? (
-        <Loader />
+        <div className="absolute top-1/2 left-[43%] md:left-1/2">
+          <Loader classname="w-12 h-12" />
+        </div>
       ) : (
         <>
           <div className="grid gap-5 mb-6 xl:grid-cols-2 2xl:grid-cols-3">
@@ -130,14 +132,14 @@ const DashboardLayouts = () => {
           </div>
           <div className="grid w-full grid-cols-1 gap-5 pb-8 lg:grid-cols-6">
             <div className="flex flex-row items-center justify-center col-span-4 p-2 bg-teal-400 rounded-lg lg:col-span-3">
-              <div className="flex items-center justify-center w-40 h-40 ">
+              <div className="flex items-center justify-center w-40 ">
                 <svg
                   id="1cf4a4b6-30d3-491e-a53d-552d6204f4f6"
                   data-name="Layer 1"
                   xmlns="http://www.w3.org/2000/svg"
                   xmlnsXlink="http://www.w3.org/1999/xlink"
                   width="906.42"
-                  height="756"
+                  height="200"
                   viewBox="0 0 906.42 756"
                 >
                   <defs>
@@ -417,7 +419,9 @@ const DashboardLayouts = () => {
 
               <div className="py-2 ml-10">
                 {dataLoggedUser ? (
-                  <h1 className="h6">Welcome, {dataLoggedUser?.data?.name}</h1>
+                  <h1 className="font-bold h6">
+                    Welcome, {dataLoggedUser?.data?.name}
+                  </h1>
                 ) : (
                   <h1 className="h6">Welcome Bruh!</h1>
                 )}
@@ -428,15 +432,17 @@ const DashboardLayouts = () => {
               </div>
             </div>
 
-            <div className="col-span-4 p-6 bg-white border border-gray-100 rounded-lg shadow-md lg:col-span-3 shadow-black/5">
+            <div className="col-span-4 p-6 bg-white border border-gray-100 rounded-lg shadow-md dark:border-gray-700 dark:bg-gray-700 lg:col-span-3 shadow-black/5">
               <div className="flex items-start justify-between mb-4">
-                <div className="font-medium">Admin</div>
+                <div className="font-medium text-darkColor dark:text-white">
+                  Admin
+                </div>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[460px]">
+                <table className="w-full ">
                   <thead>
                     <tr>
-                      <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-100 text-left rounded-tl-md rounded-bl-md">
+                      <th className="text-[12px] uppercase tracking-wide font-medium text-gray-400 dark:text-gray-700 py-2 px-4 bg-gray-100 dark:bg-gray-300 text-left rounded-md">
                         Name
                       </th>
                     </tr>
@@ -447,16 +453,11 @@ const DashboardLayouts = () => {
                         <td className="px-4 py-2 border-b border-b-gray-50">
                           <div className="flex items-center">
                             {!dataLoggedUser ? (
-                              <>
-                                <img
-                                  src={urlStaticProfileImage}
-                                  alt=""
-                                  className="block object-cover w-8 h-8 rounded"
-                                />
-                                <span className="ml-2 text-sm font-medium text-gray-600 truncate hover:text-blue-500">
-                                  Admin
-                                </span>
-                              </>
+                              <img
+                                src={urlStaticProfileImage}
+                                alt=""
+                                className="block object-cover w-8 h-8 rounded"
+                              />
                             ) : (
                               <>
                                 <img
@@ -464,7 +465,7 @@ const DashboardLayouts = () => {
                                   alt=""
                                   className="block object-cover w-8 h-8 rounded"
                                 />
-                                <span className="ml-2 text-sm font-medium text-gray-600 truncate hover:text-blue-500">
+                                <span className="ml-2 text-sm font-medium text-gray-600 truncate dark:text-gray-200 hover:text-blue-500">
                                   {v.name}
                                 </span>
                               </>

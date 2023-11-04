@@ -45,6 +45,9 @@ const UserLayouts = () => {
         headerMessage: "Failed!",
         style: "text-red-700 bg-red-100 border-red-400",
       });
+      setTimeout(() => {
+        setAlert({ show: false, message: "" });
+      }, 3000);
       console.error("Error updating user role:", error);
     }
   };
@@ -59,13 +62,18 @@ const UserLayouts = () => {
     setVisibleData((prevVisibleData) => prevVisibleData + 6);
   };
 
+  const handleAlertClose = () => {
+    setAlert({ show: false, message: "" });
+  };
+
   return (
     <AdminLayouts>
       {alert.show && (
         <Alert
           headerMessage={alert.headerMessage}
           message={alert.message}
-          classname={`fixed w-[90%] left-[10%] ${alert.style} top-20`}
+          classname={`fixed w-96 right-10 ${alert.style} top-20`}
+          onClose={handleAlertClose}
         />
       )}
       <p className="mb-6 text-3xl font-bold text-darkColor dark:text-white">
@@ -73,8 +81,8 @@ const UserLayouts = () => {
       </p>
       {error && <p>{error?.message}</p>}
       {loading ? (
-        <div className="absolute top-1/2 left-1/2">
-          <Loader />
+        <div className="absolute top-1/2 left-[43%] md:left-1/2">
+          <Loader classname="w-12 h-12" />
         </div>
       ) : (
         <>
@@ -82,25 +90,27 @@ const UserLayouts = () => {
             {dataUser.slice(0, visibleData).map((user, i) => (
               <div
                 key={i}
-                className="text-white bg-white rounded-lg shadow-md h-80"
+                className="text-black bg-white rounded-lg shadow-md dark:bg-gray-700 h-80"
               >
                 <img
-                  alt="user"
-                  className="object-cover w-32 h-32 mx-auto rounded-full mt-7"
+                  alt="profile picture"
+                  className="object-cover w-32 h-32 mx-auto align-middle rounded-full mt-7"
                   src={user.profilePictureUrl}
                 />
                 <figcaption className="mt-5 text-center">
-                  <p className="mb-2 text-xl font-semibold text-gray-700">
+                  <p className="mb-2 text-xl font-semibold text-gray-700 dark:text-gray-300">
                     {user.name}
                   </p>
-                  <p className="text-gray-500">
+                  <p className="text-gray-500 dark:text-gray-300">
                     <span className="font-medium">{user.email}</span>
                   </p>
-                  <p className="text-gray-500">
+                  <p className="text-gray-500 dark:text-gray-300">
                     <span className="font-medium">{user.phoneNumber}</span>
                   </p>
                   <div className="mt-4">
-                    <label className="mr-2 text-gray-700">Admin</label>
+                    <label className="mr-2 text-gray-700 dark:text-white">
+                      Admin
+                    </label>
                     <Switch
                       className={`relative inline-flex items-center h-6 rounded-full w-11 ${
                         user.role === "admin"
@@ -118,7 +128,9 @@ const UserLayouts = () => {
                         } inline-block w-4 h-4 transform bg-white rounded-full`}
                       />
                     </Switch>
-                    <label className="ml-2 text-gray-700">User</label>
+                    <label className="ml-2 text-gray-700 dark:text-white">
+                      User
+                    </label>
                   </div>
                 </figcaption>
               </div>

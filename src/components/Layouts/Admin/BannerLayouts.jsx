@@ -15,33 +15,24 @@ import Form from "../../Fragments/Admin/Form";
 import Loader from "../../Fragments/Global/Loader";
 import ConfirmMessage from "../../Fragments/Global/ConfirmMessage";
 import Alert from "../../Fragments/Global/Alert";
+import { apiCall } from "../../../utils/api";
+import axios from "axios";
+import useLocalStorage from "../../../hooks/useLocalStorage";
 
 const BannerLayouts = () => {
   const [name, setName] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const itemsPerPage = 5;
-  const { data, loading, error } = useFetch("api/v1/banners");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [showPreview, setShowPreview] = useState(false);
+  const [profilePictureName, setProfilePictureName] = useState("");
+  const [profilePictureFile, setProfilePictureFile] = useState(null);
+
   const [showModalAdd, setShowModalAdd] = useState(false);
   const [showModalEdit, setShowModalEdit] = useState(false);
   const [showModalDetails, setShowModalDetails] = useState(false);
-  const [showModal3, setShowModal3] = useState(false);
-  const { createItem: handleAddBanner } = useCreate("api/v1/create-banner");
-  const { updateItem } = useUpdate("api/v1/update-banner");
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [deleteItemId, setDeleteItemId] = useState(null);
-  const [alert, setAlert] = useState({ show: false, message: "" });
-  const [formData, setFormData] = useState({
-    name: "",
-    imageUrl: "",
-    dataId: null,
-  });
-  const [searchTerm, setSearchTerm] = useState("");
 
-  const handleSearch = (searchValue) => {
-    setSearchTerm(searchValue);
-  };
-
+  const { createItem: handleAddBanner } = useCreate("api/v1/create-banner");
+  const { data, loading, error, reFetch } = useFetch("api/v1/banners");
+  const { updateItem } = useUpdate("api/v1/update-banner");
   const { deleteItem: handleDeleteBanner } = useDelete("api/v1/delete-banner");
   const {
     data: dataDetail,
@@ -49,6 +40,25 @@ const BannerLayouts = () => {
     error: errorDetail,
     getDataById,
   } = useGetById("api/v1/banner");
+
+  const itemsPerPage = 5;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const [deleteItemId, setDeleteItemId] = useState(null);
+  const [alert, setAlert] = useState({ show: false, message: "" });
+  const [token, setToken] = useLocalStorage("authToken", "");
+  const [loadingForm, setLoadingForm] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    imageUrl: "",
+    dataId: null,
+  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [previewImageUrl, setPreviewImageUrl] = useState("");
+
+  const handleSearch = (searchValue) => {
+    setSearchTerm(searchValue);
+  };
 
   const totalPages = Math.ceil(data?.data?.length / itemsPerPage);
 
@@ -60,18 +70,68 @@ const BannerLayouts = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
+      let urlFoto = "";
+      if (profilePictureFile) {
+        const acceptImage = ["image/"];
+        if (
+          !acceptImage.some((item) => profilePictureFile.type.includes(item))
+        ) {
+          return setAlert({
+            show: true,
+            message: "Files that are allowed are only of type Image",
+            headerMessage: "Failed!",
+            style: "text-red-700 bg-red-100 border-red-400 w-96",
+          });
+        }
+        setTimeout(() => {
+          setAlert({ show: false, message: "" });
+        }, 3000);
+        if (profilePictureFile?.size > 500 * 1024) {
+          return setAlert({
+            show: true,
+            message: "File size exceeds 500 kb",
+            headerMessage: "Failed!",
+            style: "text-red-700 bg-red-100 border-red-400 w-96",
+          });
+        }
+        setTimeout(() => {
+          setAlert({ show: false, message: "" });
+        }, 3000);
+        let data = new FormData();
+        data.append("image", profilePictureFile);
+        await axios
+          .post(
+            "https://travel-journal-api-bootcamp.do.dibimbing.id/api/v1/upload-image",
+            data,
+            {
+              headers: {
+                apiKey: "24405e01-fbc1-45a5-9f5a-be13afcd757c",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+          .then((response) => {
+            if (response.data.status === "OK") {
+              urlFoto = response.data.url;
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
       const bannerData = {
         name,
-        imageUrl,
+        imageUrl: urlFoto,
       };
 
       const createdItem = await handleAddBanner(bannerData);
+      reFetch();
       setShowModalAdd(false);
       setAlert({
         show: true,
         message: createdItem.message,
         headerMessage: "Success!",
-        style: "text-green-700 bg-green-200 border-green-400",
+        style: "text-green-700 bg-green-200 border-green-400 w-96",
       });
 
       setTimeout(() => {
@@ -79,12 +139,15 @@ const BannerLayouts = () => {
       }, 3000);
     } catch (error) {
       setAlert({
-        show: false,
+        show: true,
         message: error.message,
         headerMessage: "Failed!",
-        style: "text-red-700 bg-red-100 border-red-400",
+        style: "text-red-700 bg-red-100 border-red-400 w-96",
       });
-      console.error("Error during login:", error);
+      setTimeout(() => {
+        setAlert({ show: false, message: "" });
+      }, 3000);
+      console.error("Error during create:", error);
     }
   };
 
@@ -95,11 +158,35 @@ const BannerLayouts = () => {
 
   const handleConfirmDelete = async () => {
     try {
-      await handleDeleteBanner(deleteItemId);
+      const deletedItem = await handleDeleteBanner(deleteItemId);
       setShowDeleteConfirmation(false);
+      reFetch();
+      setAlert({
+        show: true,
+        message: deletedItem.message,
+        headerMessage: "Success!",
+        style: "text-green-700 bg-green-200 border-green-400 w-96",
+      });
+
+      setTimeout(() => {
+        setAlert({ show: false, message: "" });
+      }, 3000);
     } catch (error) {
+      setAlert({
+        show: false,
+        message: error?.message,
+        headerMessage: "Failed!",
+        style: "text-red-700 bg-red-100 border-red-400 w-96",
+      });
+      setTimeout(() => {
+        setAlert({ show: false, message: "" });
+      }, 3000);
       console.error("Error during delete:", error);
     }
+  };
+
+  const handleAlertClose = () => {
+    setAlert({ show: false, message: "" });
   };
 
   const handleUpdate = async (e, id) => {
@@ -110,14 +197,83 @@ const BannerLayouts = () => {
     }
 
     try {
+      let urlFoto = "";
+      if (profilePictureFile) {
+        const acceptImage = ["image/"];
+        if (
+          !acceptImage.some((item) => profilePictureFile.type.includes(item))
+        ) {
+          return setAlert({
+            show: true,
+            message: "Files that are allowed are only of type Image",
+            headerMessage: "Failed!",
+            style: "text-red-700 bg-red-100 border-red-400 w-96",
+          });
+        }
+        setTimeout(() => {
+          setAlert({ show: false, message: "" });
+        }, 3000);
+        if (profilePictureFile?.size > 500 * 1024) {
+          return setAlert({
+            show: true,
+            message: "File size exceeds 500 kb",
+            headerMessage: "Failed!",
+            style: "text-red-700 bg-red-100 border-red-400 w-96",
+          });
+        }
+        setTimeout(() => {
+          setAlert({ show: false, message: "" });
+        }, 3000);
+        let data = new FormData();
+        data.append("image", profilePictureFile);
+        await axios
+          .post(
+            "https://travel-journal-api-bootcamp.do.dibimbing.id/api/v1/upload-image",
+            data,
+            {
+              headers: {
+                apiKey: "24405e01-fbc1-45a5-9f5a-be13afcd757c",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+          .then((response) => {
+            if (response.data.status === "OK") {
+              urlFoto = response.data.url;
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
       const updatedBannerData = {
-        name: formData.name,
-        imageUrl: formData.imageUrl,
+        name: formData?.name,
+        imageUrl: urlFoto,
       };
       const updatedItem = await updateItem(id, updatedBannerData);
+      reFetch();
+      setShowModalEdit(false);
+      setAlert({
+        show: true,
+        message: updatedItem?.message,
+        headerMessage: "Success!",
+        style: "text-green-700 bg-green-200 border-green-400 w-96",
+      });
+      setTimeout(() => {
+        setAlert({ show: false, message: "" });
+      }, 3000);
       console.log("Update data banner successful:", updatedItem);
     } catch (error) {
-      console.error("Error during login:", error);
+      setAlert({
+        show: false,
+        message: error?.message,
+        headerMessage: "Failed!",
+        style: "text-red-700 bg-red-100 border-red-400 w-96",
+      });
+      setTimeout(() => {
+        setAlert({ show: false, message: "" });
+      }, 3000);
+      console.error("Error during update:", error);
     }
   };
 
@@ -126,14 +282,24 @@ const BannerLayouts = () => {
   };
 
   const handleViewData = async (id) => {
-    await getDataById(id);
+    setLoadingForm(true);
     setShowModalEdit(true);
-    if (dataDetail) {
-      setFormData({
-        name: dataDetail.data.name,
-        imageUrl: dataDetail.data.imageUrl,
-        dataId: id,
-      });
+    try {
+      const response = await apiCall(
+        "get",
+        `https://travel-journal-api-bootcamp.do.dibimbing.id/api/v1/banner/${id}`
+      );
+      if (response.status === "OK") {
+        setFormData({
+          name: response.data.name,
+          imageUrl: response.data.imageUrl,
+          dataId: id,
+        });
+      }
+    } catch (error) {
+      console.log(error?.message);
+    } finally {
+      setLoadingForm(false);
     }
   };
 
@@ -154,20 +320,30 @@ const BannerLayouts = () => {
   const filteredData = paginatedData?.filter((item) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const openImagePreview = () => {
+    if (profilePictureFile) {
+      const imageUrl = URL.createObjectURL(profilePictureFile);
+      setPreviewImageUrl(imageUrl);
+      setShowPreview(true);
+    }
+  };
+
   return (
     <AdminLayouts>
-      {alert.show && (
+      {alert?.show && (
         <Alert
           headerMessage={alert.headerMessage}
           message={alert.message}
-          classname={`fixed w-[90%] left-[10%] ${alert.style} top-20`}
+          classname={`fixed right-10 ${alert.style} top-20`}
+          onClose={handleAlertClose}
         />
       )}
       <p className="mb-6 text-3xl font-bold text-gray-700">Banners</p>
       {error && <p>Error: {error.message}</p>}
       {loading ? (
-        <div className="absolute top-1/2 left-1/2">
-          <Loader />
+        <div className="absolute top-1/2 left-[43%] md:left-1/2">
+          <Loader classname="w-12 h-12" />
         </div>
       ) : (
         <TableLayouts
@@ -224,6 +400,7 @@ const BannerLayouts = () => {
                 ...v,
                 createdAt: formatDate(v.createdAt),
                 updatedAt: formatDate(v.updatedAt),
+                name: v.name.split(" ").slice(0, 2).join(" "),
               }))}
             />
           ) : (
@@ -240,16 +417,22 @@ const BannerLayouts = () => {
       <Modal
         classname="w-[80%] md:w-[40%]"
         isVisible={showModalAdd}
-        onClose={() => setShowModalAdd(false)}
+        onClose={() => {
+          setShowModalAdd(false);
+          setProfilePictureFile(null);
+        }}
       >
         <h2 className="mb-4 text-lg font-semibold">Add Banner</h2>
         <Form
           onSubmit={handleSubmit}
-          showFormCategory={true}
           onChangeName={(event) => setName(event.target.value)}
-          onChangeImgUrl={(event) => setImageUrl(event.target.value)}
+          onChangePicture={(e) => {
+            setProfilePictureName(e.target.value);
+            setProfilePictureFile(e.target.files[0]);
+          }}
           placeholderName="Input banner name ..."
-          placeholderImageUrl="Input banner image url ..."
+          onClick={openImagePreview}
+          showImagePreview={true}
         />
       </Modal>
       <Modal
@@ -259,8 +442,8 @@ const BannerLayouts = () => {
       >
         <h2 className="mb-4 text-lg font-semibold">Edit Banner</h2>
 
-        {loadingDetail ? (
-          <Loader />
+        {loadingForm ? (
+          <Loader classname="w-12 h-12" />
         ) : (
           <Form
             onSubmit={handleUpdate}
@@ -268,14 +451,15 @@ const BannerLayouts = () => {
             onChangeName={(e) =>
               setFormData({ ...formData, name: e.target.value })
             }
-            onChangeImgUrl={(e) =>
-              setFormData({ ...formData, imageUrl: e.target.value })
-            }
+            onChangePicture={(e) => {
+              setProfilePictureName(e.target.value);
+              setProfilePictureFile(e.target.files[0]);
+            }}
             placeholderName="Input banner name ..."
-            placeholderImageUrl="Input banner image url ..."
-            valueName={formData.name}
-            valueImageUrl={formData.imageUrl}
-            dataId={formData.dataId}
+            valueName={formData?.name}
+            valueImageUrl={formData?.imageUrl}
+            dataId={formData?.dataId}
+            showImage={true}
           />
         )}
       </Modal>
@@ -298,7 +482,7 @@ const BannerLayouts = () => {
         onClose={() => setShowModalDetails(false)}
       >
         {loadingDetail ? (
-          <Loader />
+          <Loader classname="w-12 h-12" />
         ) : (
           <Card
             src={dataDetail?.data?.imageUrl}
@@ -309,6 +493,17 @@ const BannerLayouts = () => {
             updatedAt={formatDate(dataDetail?.data?.updatedAt)}
           />
         )}
+      </Modal>
+      <Modal
+        classname="items-center rounded-full w-96 h-96"
+        isVisible={showPreview}
+        onClose={() => setShowPreview(false)}
+      >
+        <img
+          src={previewImageUrl}
+          alt="Pratinjau Gambar"
+          className="object-cover rounded-full w-[95%] h-[95%]"
+        />
       </Modal>
     </AdminLayouts>
   );

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import useFetch from "../../../hooks/useFetch";
 import Button from "../../Elements/Button/Index";
 import Table from "../../Fragments/Admin/Table";
@@ -14,33 +14,44 @@ import useDelete from "../../../hooks/useDelete";
 import ConfirmMessage from "../../Fragments/Global/ConfirmMessage";
 import Card from "../../Fragments/Global/Card";
 import Loader from "../../Fragments/Global/Loader";
+import { apiCall } from "../../../utils/api";
+import Alert from "../../Fragments/Global/Alert";
+import useLocalStorage from "../../../hooks/useLocalStorage";
+import axios from "axios";
 
 const CategoryLayouts = () => {
   const [name, setName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const itemsPerPage = 5;
-  const { data, loading, error } = useFetch("api/v1/categories");
+  const { data, loading, error, reFetch } = useFetch("api/v1/categories");
   const [currentPage, setCurrentPage] = useState(1);
   const [showModalAdd, setShowModalAdd] = useState(false);
   const [showModalEdit, setShowModalEdit] = useState(false);
   const [showModalDetails, setShowModalDetails] = useState(false);
-  const { createItem: handleAddCategory } = useCreate("api/v1/create-category");
+  const { createItem } = useCreate("api/v1/create-category");
   const { updateItem } = useUpdate("api/v1/update-category");
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(null);
+  const [loadingForm, setLoadingForm] = useState(false);
+  const [token, setToken] = useLocalStorage("authToken", "");
+  const [profilePictureName, setProfilePictureName] = useState("");
+  const [profilePictureFile, setProfilePictureFile] = useState(null);
+
   const [formData, setFormData] = useState({
     name: "",
     imageUrl: "",
     dataId: null,
   });
   const [searchTerm, setSearchTerm] = useState("");
+  const [alert, setAlert] = useState({ show: false, message: "" });
+  const handleAlertClose = () => {
+    setAlert({ show: false, message: "" });
+  };
   const handleSearch = (searchValue) => {
     setSearchTerm(searchValue);
   };
 
-  const { deleteItem: handleDeleteCategory } = useDelete(
-    "api/v1/delete-category"
-  );
+  const { deleteItem } = useDelete("api/v1/delete-category");
   const {
     data: dataDetail,
     loading: loadingDetail,
@@ -65,16 +76,84 @@ const CategoryLayouts = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const categoryData = {
+      let urlFoto = "";
+      if (profilePictureFile) {
+        const acceptImage = ["image/"];
+        if (
+          !acceptImage.some((item) => profilePictureFile.type.includes(item))
+        ) {
+          return setAlert({
+            show: true,
+            message: "Files that are allowed are only of type Image",
+            headerMessage: "Failed!",
+            style: "text-red-700 bg-red-100 border-red-400 w-96",
+          });
+        }
+        setTimeout(() => {
+          setAlert({ show: false, message: "" });
+        }, 3000);
+        if (profilePictureFile?.size > 500 * 1024) {
+          return setAlert({
+            show: true,
+            message: "File size exceeds 500 kb",
+            headerMessage: "Failed!",
+            style: "text-red-700 bg-red-100 border-red-400 w-96",
+          });
+        }
+        setTimeout(() => {
+          setAlert({ show: false, message: "" });
+        }, 3000);
+        let data = new FormData();
+        data.append("image", profilePictureFile);
+        await axios
+          .post(
+            "https://travel-journal-api-bootcamp.do.dibimbing.id/api/v1/upload-image",
+            data,
+            {
+              headers: {
+                apiKey: "24405e01-fbc1-45a5-9f5a-be13afcd757c",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+          .then((response) => {
+            if (response.data.status === "OK") {
+              urlFoto = response.data.url;
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+      const bannerData = {
         name,
-        imageUrl,
+        imageUrl: urlFoto,
       };
 
-      const createdItem = await handleAddCategory(categoryData);
+      const createdItem = await createItem(bannerData);
+      reFetch();
+      setShowModalAdd(false);
+      setAlert({
+        show: true,
+        message: createdItem.message,
+        headerMessage: "Success!",
+        style: "text-green-700 bg-green-200 border-green-400 w-96",
+      });
 
-      console.log("Add category successful:", createdItem);
+      setTimeout(() => {
+        setAlert({ show: false, message: "" });
+      }, 3000);
     } catch (error) {
-      console.error("Error during login:", error);
+      setAlert({
+        show: true,
+        message: error.message,
+        headerMessage: "Failed!",
+        style: "text-red-700 bg-red-100 border-red-400 w-96",
+      });
+      setTimeout(() => {
+        setAlert({ show: false, message: "" });
+      }, 3000);
+      console.error("Error during create:", error);
     }
   };
 
@@ -85,27 +164,118 @@ const CategoryLayouts = () => {
 
   const handleConfirmDelete = async () => {
     try {
-      await handleDeleteCategory(deleteItemId);
-      // After successful deletion, close the confirmation modal
+      const deletedItem = await deleteItem(deleteItemId);
       setShowDeleteConfirmation(false);
+      reFetch();
+      setAlert({
+        show: true,
+        message: deletedItem.message,
+        headerMessage: "Success!",
+        style: "text-green-700 bg-green-200 border-green-400 w-96",
+      });
+
+      setTimeout(() => {
+        setAlert({ show: false, message: "" });
+      }, 3000);
     } catch (error) {
+      setAlert({
+        show: false,
+        message: error?.message,
+        headerMessage: "Failed!",
+        style: "text-red-700 bg-red-100 border-red-400 w-96",
+      });
+      setTimeout(() => {
+        setAlert({ show: false, message: "" });
+      }, 3000);
       console.error("Error during delete:", error);
     }
   };
+
   const handleUpdate = async (e, id) => {
     e.preventDefault();
+
     if (!id) {
       return;
     }
+
     try {
+      let urlFoto = "";
+      if (profilePictureFile) {
+        const acceptImage = ["image/"];
+        if (
+          !acceptImage.some((item) => profilePictureFile.type.includes(item))
+        ) {
+          return setAlert({
+            show: true,
+            message: "Files that are allowed are only of type Image",
+            headerMessage: "Failed!",
+            style: "text-red-700 bg-red-100 border-red-400 w-96",
+          });
+        }
+        setTimeout(() => {
+          setAlert({ show: false, message: "" });
+        }, 3000);
+        if (profilePictureFile?.size > 500 * 1024) {
+          return setAlert({
+            show: true,
+            message: "File size exceeds 500 kb",
+            headerMessage: "Failed!",
+            style: "text-red-700 bg-red-100 border-red-400 w-96",
+          });
+        }
+        setTimeout(() => {
+          setAlert({ show: false, message: "" });
+        }, 3000);
+        let data = new FormData();
+        data.append("image", profilePictureFile);
+        await axios
+          .post(
+            "https://travel-journal-api-bootcamp.do.dibimbing.id/api/v1/upload-image",
+            data,
+            {
+              headers: {
+                apiKey: "24405e01-fbc1-45a5-9f5a-be13afcd757c",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
+          .then((response) => {
+            if (response.data.status === "OK") {
+              urlFoto = response.data.url;
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
       const updatedCategoryData = {
-        name: formData.name,
-        imageUrl: formData.imageUrl,
+        name: formData?.name,
+        imageUrl: urlFoto,
       };
       const updatedItem = await updateItem(id, updatedCategoryData);
+      reFetch();
+      setShowModalEdit(false);
+      setAlert({
+        show: true,
+        message: updatedItem?.message,
+        headerMessage: "Success!",
+        style: "text-green-700 bg-green-200 border-green-400 w-96",
+      });
+      setTimeout(() => {
+        setAlert({ show: false, message: "" });
+      }, 3000);
       console.log("Update data category successful:", updatedItem);
     } catch (error) {
-      console.error("Error during login:", error);
+      setAlert({
+        show: false,
+        message: error?.message,
+        headerMessage: "Failed!",
+        style: "text-red-700 bg-red-100 border-red-400 w-96",
+      });
+      setTimeout(() => {
+        setAlert({ show: false, message: "" });
+      }, 3000);
+      console.error("Error during update:", error);
     }
   };
 
@@ -114,14 +284,24 @@ const CategoryLayouts = () => {
   };
 
   const handleViewData = async (id) => {
+    setLoadingForm(true);
     setShowModalEdit(true);
-    await getDataById(id);
-    if (dataDetail) {
-      setFormData({
-        name: dataDetail.data.name,
-        imageUrl: dataDetail.data.imageUrl,
-        dataId: id,
-      });
+    try {
+      const response = await apiCall(
+        "get",
+        `https://travel-journal-api-bootcamp.do.dibimbing.id/api/v1/category/${id}`
+      );
+      if (response.status === "OK") {
+        setFormData({
+          name: response.data.name,
+          imageUrl: response.data.imageUrl,
+          dataId: id,
+        });
+      }
+    } catch (error) {
+      console.log(error?.message);
+    } finally {
+      setLoadingForm(false);
     }
   };
 
@@ -145,15 +325,23 @@ const CategoryLayouts = () => {
 
   return (
     <AdminLayouts>
+      {alert?.show && (
+        <Alert
+          headerMessage={alert.headerMessage}
+          message={alert.message}
+          classname={`fixed right-10 ${alert.style} top-20`}
+          onClose={handleAlertClose}
+        />
+      )}
       <p className="mb-6 text-3xl font-bold text-gray-700">Categories</p>
       {loading ? (
         <div className="absolute top-1/2 left-1/2">
-          <Loader />
+          <Loader classname="w-12 h-12" />
         </div>
       ) : (
         <TableLayouts
           title="Manage Categories"
-          searchTerm={searchTerm} // Mengirim nilai pencarian sebagai prop
+          searchTerm={searchTerm}
           onSearch={handleSearch}
           button={
             <Button
@@ -221,7 +409,6 @@ const CategoryLayouts = () => {
       >
         <h2 className="mb-4 text-lg font-semibold">Add Category</h2>
         <Form
-          showFormCategory={true}
           onSubmit={handleSubmit}
           onChangeName={(event) => setName(event.target.value)}
           onChangeImgUrl={(event) => setImageUrl(event.target.value)}
@@ -236,17 +423,18 @@ const CategoryLayouts = () => {
       >
         <h2 className="mb-4 text-lg font-semibold">Edit Category</h2>
 
-        {loadingDetail ? (
-          <Loader />
+        {loadingForm ? (
+          <Loader classname="w-12 h-12" />
         ) : (
           <Form
             onSubmit={handleUpdate}
             onChangeName={(e) =>
               setFormData({ ...formData, name: e.target.value })
             }
-            onChangeImgUrl={(e) =>
-              setFormData({ ...formData, imageUrl: e.target.value })
-            }
+            onChangePicture={(e) => {
+              setProfilePictureName(e.target.value);
+              setProfilePictureFile(e.target.files[0]);
+            }}
             showFormCategory={true}
             placeholderName="Input category name ..."
             placeholderImageUrl="Input category image url ..."
@@ -274,14 +462,18 @@ const CategoryLayouts = () => {
         isVisible={showModalDetails}
         onClose={() => setShowModalDetails(false)}
       >
-        <Card
-          src={dataDetail?.data?.imageUrl}
-          bannerName={dataDetail?.data?.name}
-          alt={dataDetail?.data?.name}
-          showDetailsBanner={true}
-          createdAt={formatDate(dataDetail?.data?.createdAt)}
-          updatedAt={formatDate(dataDetail?.data?.updatedAt)}
-        />
+        {loadingDetail ? (
+          <Loader classname="w-12 h-12" />
+        ) : (
+          <Card
+            src={dataDetail?.data?.imageUrl}
+            bannerName={dataDetail?.data?.name}
+            alt={dataDetail?.data?.name}
+            showDetailsBanner={true}
+            createdAt={formatDate(dataDetail?.data?.createdAt)}
+            updatedAt={formatDate(dataDetail?.data?.updatedAt)}
+          />
+        )}
       </Modal>
     </AdminLayouts>
   );
