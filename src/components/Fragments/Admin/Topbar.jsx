@@ -24,7 +24,7 @@ const Topbar = ({ showNav, setShowNav }) => {
           />
         </svg>
       </div>
-      <div className="flex items-center gap-3 pr-4 md:pr-16">
+      <div className="flex items-center justify-center gap-3 pr-4 md:pr-16">
         <div
           className=" cursor-pointer p-1 text-[1.3rem] dark:text-white"
           onClick={() => setColorMode(colorMode === "light" ? "dark" : "light")}
