@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import useCreate from "../../../hooks/usePost"; // Ganti dengan path yang benar
 import useLocalStorage from "../../../hooks/useLocalStorage";
-import { useNavigate } from "react-router-dom";
 
 const FormLogin = () => {
   const [email, setEmail] = useState("");
@@ -11,7 +10,6 @@ const FormLogin = () => {
   const [isFormValid, setIsFormValid] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-  const navigate = useNavigate();
 
   const { createItem: handleLogin } = useCreate("api/v1/login");
 
@@ -25,7 +23,6 @@ const FormLogin = () => {
       setToken(createdItem.token || createdItem.data);
       setRole(createdItem.data.role);
       window.location.href = "/";
-      // navigate("/");
     } catch (error) {
       console.error("Error during login:", error);
     }
@@ -40,9 +37,7 @@ const FormLogin = () => {
   useEffect(() => {
     const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-    setEmailError(
-      isEmailValid || email.trim() === "" ? "" : "Email tidak valid"
-    );
+    setEmailError(isEmailValid || email.trim() === "" ? "" : "Invalid email");
 
     setIsFormValid(
       email.trim() !== "" && password.trim() !== "" && isEmailValid
@@ -63,7 +58,7 @@ const FormLogin = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           onBlur={() =>
-            setEmailError(email.trim() === "" ? "Email tidak boleh kosong" : "")
+            setEmailError(email.trim() === "" ? "Email must not be empty" : "")
           }
           className="w-full px-3 py-2 mt-1 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
           ref={emailRef}
@@ -83,7 +78,9 @@ const FormLogin = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onBlur={() =>
-            setPasswordError(password.trim() === "" ? "Password required" : "")
+            setPasswordError(
+              password.trim() === "" ? "Password must not be empty" : ""
+            )
           }
           className="w-full px-3 py-2 mt-1 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
         />
