@@ -6,7 +6,7 @@ const Table = ({ column, data }) => {
           {column.map((v, i) => (
             <th
               key={i}
-              className="text-[12px] uppercase tracking-wide font-medium text-gray-400 py-2 px-4 bg-gray-50 text-left"
+              className="text-[12px] uppercase tracking-wide font-medium text-gray-500 dark:text-gray-200 py-2 px-4 bg-gray-100 dark:bg-gray-600 text-left"
             >
               {v.title}
             </th>
@@ -26,7 +26,7 @@ const Table = ({ column, data }) => {
                     key={index}
                     className="px-4 py-2 border-b border-b-gray-50"
                   >
-                    <span className="ml-2 text-sm font-medium text-gray-600 truncate hover:text-blue-500">
+                    <span className="ml-2 text-sm font-medium text-gray-500 truncate dark:text-gray-200 hover:text-blue-500">
                       {v[data.column]}
                     </span>
                   </td>
