@@ -10,9 +10,9 @@
 
 <h2>Project Screenshots:</h2>
 
-<img src="https://res.cloudinary.com/dnrorybws/image/upload/v1699104304/dashboard_e9yval.jpg" alt="project-screenshot" width="1000" height="400/">
+<img src="https://res.cloudinary.com/dnrorybws/image/upload/v1699104304/dashboard_e9yval.jpg" alt="project-screenshot" width="1000">
 
-<img src="https://res.cloudinary.com/dnrorybws/image/upload/v1699104304/home_sp4taf.jpg" alt="project-screenshot" width="1000" height="400/">
+<img src="https://res.cloudinary.com/dnrorybws/image/upload/v1699104304/home_sp4taf.jpg" alt="project-screenshot" width="1000">
 
   
   
