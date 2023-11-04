@@ -5,15 +5,15 @@ import { Link, useNavigate } from "react-router-dom";
 import useFetch from "../../../hooks/useFetch";
 import useLocalStorage from "../../../hooks/useLocalStorage";
 import axios from "axios";
+import Loader from "./Loader";
 
 const ProfileDropdown = ({ showProfileName, classname }) => {
   const { data, loading, error } = useFetch("api/v1/user");
   const [token, setToken] = useLocalStorage("authToken", "");
   const [role, setRole] = useLocalStorage("role", "");
-  const navigate = useNavigate();
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <Loader classname="w-5 h-5" />;
   }
 
   if (error) {
