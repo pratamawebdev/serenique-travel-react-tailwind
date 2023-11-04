@@ -8,30 +8,30 @@ const useFetch = (endpoint) => {
   const [error, setError] = useState(null);
   const [token, setToken] = useLocalStorage("authToken", "");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `https://travel-journal-api-bootcamp.do.dibimbing.id/${endpoint}`,
-          {
-            headers: {
-              apiKey: "24405e01-fbc1-45a5-9f5a-be13afcd757c",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setData(response.data);
-      } catch (error) {
-        setError(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(
+        `https://travel-journal-api-bootcamp.do.dibimbing.id/${endpoint}`,
+        {
+          headers: {
+            apiKey: "24405e01-fbc1-45a5-9f5a-be13afcd757c",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setData(response.data);
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, []);
 
-  return { data, loading, error };
+  return { data, loading, error, reFetch: fetchData };
 };
 
 export default useFetch;
