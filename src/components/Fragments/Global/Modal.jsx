@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 const Modal = ({ isVisible, onClose, children, classname }) => {
   if (!isVisible) return null;
 
