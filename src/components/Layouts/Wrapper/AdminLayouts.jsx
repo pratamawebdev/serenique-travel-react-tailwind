@@ -46,7 +46,9 @@ const AdminLayouts = ({ children, classname }) => {
           showNav && !isMobile ? "pl-56" : ""
         }`}
       >
-        <div className="px-4 bg-white md:px-16 dark:bg-darkColor">
+        <div
+          className={`px-4 bg-white md:px-16 dark:bg-darkColor ${classname}`}
+        >
           {children}
         </div>
       </main>
