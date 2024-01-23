@@ -12,9 +12,7 @@ const AboutUsLayouts = () => {
           <p className="about__subtitle section-subtitle">About Us</p>
           <h1 className="about__title section-title">Explore world with us</h1>
           <p className="mb-4 about__text section-text 2xl:max-w-md">
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nulla
-            veniam nostrum numquam ipsa laboriosam eveniet voluptatum illo
-            corrupti impedit ex sit.
+            The "Serenique Web Travel" project will produce a web platform that allows users to access travel information in a more efficient and enjoyable way. In addition, users (admins) can add, edit, and delete destinations, upload travel photos, search destinations, and secure user accounts through authentication.
           </p>
           <Link to="/" className="inline-flex about__button button">
             Get Started
